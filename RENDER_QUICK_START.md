@@ -51,7 +51,7 @@ pip install -r requirements.txt
 
 ### Start Command
 ```bash
-gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+gunicorn app:app --workers 2 --timeout 120
 ```
 
 ### Environment Variables
@@ -76,7 +76,7 @@ If Blueprint doesn't work:
    Branch: main
    Runtime: Python 3
    Build: pip install -r requirements.txt
-   Start: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+   Start: gunicorn app:app --workers 2 --timeout 120
    Plan: Free
    ```
 

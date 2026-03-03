@@ -89,8 +89,10 @@ Branch: main
 
 ```bash
 Build Command: pip install -r requirements.txt
-Start Command: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+Start Command: gunicorn app:app --workers 2 --timeout 120
 ```
+
+Note: Render automatically binds to $PORT, no need to specify --bind
 
 ### Environment Variables
 
