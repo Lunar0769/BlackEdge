@@ -1,10 +1,12 @@
 """
 Flask Web Server for BlackEdge
 Streams agent outputs in real-time via Server-Sent Events (SSE)
+Optimized for low-memory environments (Render free tier)
 """
 import json
 import time
 import threading
+import gc
 from flask import Flask, render_template, request, Response, jsonify
 from memory.feedback_manager import FeedbackManager
 
@@ -12,6 +14,12 @@ app = Flask(__name__)
 
 # Global lock to ensure only one query is processed at a time
 analysis_lock = threading.Lock()
+
+# Memory optimization: Force garbage collection after each request
+@app.after_request
+def after_request(response):
+    gc.collect()
+    return response
 
 
 @app.route("/")
@@ -54,18 +62,24 @@ def analyze():
                 from agents.researcher import researcher_node
                 state = researcher_node(state)
                 yield _sse("step", {"step": "researcher", "status": "done", "label": "🔍 Research complete", "content": state["research"]})
+                
+                # Free memory
+                del vectorstore
+                gc.collect()
 
                 # --- Step 3: Analyst ---
                 yield _sse("step", {"step": "analyst", "status": "loading", "label": "📈 Analyst processing…"})
                 from agents.analyst import analyst_node
                 state = analyst_node(state)
                 yield _sse("step", {"step": "analyst", "status": "done", "label": "📈 Analysis complete", "content": state["analysis"]})
+                gc.collect()
 
                 # --- Step 4: Trader ---
                 yield _sse("step", {"step": "trader", "status": "loading", "label": "💰 Trader deciding…"})
                 from agents.trader import trader_node
                 state = trader_node(state)
                 yield _sse("step", {"step": "trader", "status": "done", "label": "💰 Decision made", "content": state["decision"]})
+                gc.collect()
 
                 # --- Step 5: Critic ---
                 yield _sse("step", {"step": "critic", "status": "loading", "label": "🎯 Critic evaluating…"})
@@ -90,9 +104,13 @@ def analyze():
                     "evaluation": evaluation,
                     "critic_score": evaluation["score"],
                 })
+                
+                # Final cleanup
+                gc.collect()
 
             except Exception as e:
                 yield _sse("error", {"message": str(e)})
+                gc.collect()
 
     return Response(generate(), mimetype="text/event-stream",
                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
