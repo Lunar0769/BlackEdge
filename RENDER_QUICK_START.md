@@ -51,8 +51,10 @@ pip install -r requirements.txt
 
 ### Start Command
 ```bash
-gunicorn app:app --workers 2 --timeout 120
+gunicorn app:app --workers 1 --threads 2 --timeout 300 --worker-class gthread --max-requests 100 --max-requests-jitter 10
 ```
+
+**Optimized for Render free tier (512MB RAM)**
 
 ### Environment Variables
 | Variable | Value |
