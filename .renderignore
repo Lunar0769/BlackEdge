@@ -1,0 +1,10 @@
+# Don't upload these to Render
+venv/
+__pycache__/
+*.pyc
+.env
+.vscode/
+.git/
+*.log
+rate_limit.json
+memory/error_log.json
