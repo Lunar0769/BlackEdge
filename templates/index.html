@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlackEdge — AI Market Intelligence</title>
+  <meta name="description"
+    content="BlackEdge: AI-powered self-correcting market analysis agent using Gemini. Get research, analysis, trading decisions and critic evaluations in real time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+  <!-- Background particles -->
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🔥</span>
+        <div>
+          <h1>BlackEdge</h1>
+          <p class="subtitle">AI Market Intelligence · Gemini Powered</p>
+        </div>
+      </div>
+      <nav class="header-actions">
+        <button class="btn-ghost" id="memoryBtn" onclick="toggleMemory()">🧠 Memory</button>
+        <div class="status-dot" id="statusDot" title="Idle"></div>
+      </nav>
+    </header>
+
+    <!-- Main layout -->
+    <main class="main-layout">
+
+      <!-- Left: Input + Steps -->
+      <section class="left-panel">
+
+        <!-- Query Input -->
+        <div class="card query-card">
+          <h2 class="card-title">Market Query</h2>
+          <div class="input-group">
+            <textarea id="queryInput" class="query-input"
+              placeholder="e.g. Should I buy NVDA given AI boom and high valuation?" rows="2"></textarea>
+            <div class="query-actions">
+              <div class="preset-chips">
+                <button class="chip"
+                  onclick="setQuery('Fed cuts rates while inflation remains high — buy or sell equities?')">Macro
+                  Stress</button>
+                <button class="chip"
+                  onclick="setQuery('NVDA shows strong growth but insiders are selling and valuation is stretched')">Contradictory
+                  Signals</button>
+                <button class="chip"
+                  onclick="setQuery('Banking crisis erupts while tech rallies — what is the play?')">Shock
+                  Scenario</button>
+                <button class="chip"
+                  onclick="setQuery('How will AI productivity gains reshape markets over the next decade?')">Long-term
+                  Structural</button>
+              </div>
+              <button id="runBtn" class="btn-primary" onclick="runAnalysis()">
+                <span class="btn-icon">⚡</span>
+                <span class="btn-text">Analyse</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent Pipeline Steps -->
+        <div class="card steps-card">
+          <h2 class="card-title">Agent Pipeline</h2>
+          <div class="pipeline" id="pipeline">
+            <div class="pipeline-step" id="step-rag" data-step="rag">
+              <div class="step-icon">📚</div>
+              <div class="step-info">
+                <span class="step-label">RAG Context</span>
+                <span class="step-desc">Historical market data retrieval</span>
+              </div>
+              <div class="step-status" id="status-rag"><span class="dot-idle"></span></div>
+            </div>
+            <div class="pipeline-connector"></div>
+            <div class="pipeline-step" id="step-researcher" data-step="researcher">
+              <div class="step-icon">🔍</div>
+              <div class="step-info">
+                <span class="step-label">Researcher</span>
+                <span class="step-desc">Macro & sector analysis</span>
+              </div>
+              <div class="step-status" id="status-researcher"><span class="dot-idle"></span></div>
+            </div>
+            <div class="pipeline-connector"></div>
+            <div class="pipeline-step" id="step-analyst" data-step="analyst">
+              <div class="step-icon">📈</div>
+              <div class="step-info">
+                <span class="step-label">Analyst</span>
+                <span class="step-desc">Risk-adjusted analysis</span>
+              </div>
+              <div class="step-status" id="status-analyst"><span class="dot-idle"></span></div>
+            </div>
+            <div class="pipeline-connector"></div>
+            <div class="pipeline-step" id="step-trader" data-step="trader">
+              <div class="step-icon">💰</div>
+              <div class="step-info">
+                <span class="step-label">Trader</span>
+                <span class="step-desc">BUY / SELL / HOLD decision</span>
+              </div>
+              <div class="step-status" id="status-trader"><span class="dot-idle"></span></div>
+            </div>
+            <div class="pipeline-connector"></div>
+            <div class="pipeline-step" id="step-critic" data-step="critic">
+              <div class="step-icon">🎯</div>
+              <div class="step-info">
+                <span class="step-label">Critic</span>
+                <span class="step-desc">Quality evaluation &amp; feedback</span>
+              </div>
+              <div class="step-status" id="status-critic"><span class="dot-idle"></span></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right: Results -->
+      <section class="right-panel" id="rightPanel">
+        <div class="result-placeholder" id="resultPlaceholder">
+          <div class="placeholder-icon">🤖</div>
+          <p>Enter a market question and click <strong>Analyse</strong> to see live agent output.</p>
+        </div>
+
+        <div id="resultSections" style="display:none">
+          <div class="result-tab-bar">
+            <button class="tab active" data-tab="research" onclick="switchTab(this,'research')">📊 Research</button>
+            <button class="tab" data-tab="analysis" onclick="switchTab(this,'analysis')">📈 Analysis</button>
+            <button class="tab" data-tab="decision" onclick="switchTab(this,'decision')">💰 Decision</button>
+            <button class="tab" data-tab="critic" onclick="switchTab(this,'critic')">🎯 Critic</button>
+          </div>
+
+          <div id="tab-research" class="tab-content active">
+            <div class="result-body" id="researchContent"></div>
+          </div>
+          <div id="tab-analysis" class="tab-content">
+            <div class="result-body" id="analysisContent"></div>
+          </div>
+          <div id="tab-decision" class="tab-content">
+            <div class="result-body" id="decisionContent"></div>
+          </div>
+          <div id="tab-critic" class="tab-content">
+            <div class="result-body" id="criticContent"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Memory Panel (slide-over) -->
+    <div class="memory-overlay" id="memoryOverlay" onclick="toggleMemory()"></div>
+    <aside class="memory-panel" id="memoryPanel">
+      <div class="memory-header">
+        <h2>🧠 Agent Memory</h2>
+        <button class="btn-ghost small" onclick="toggleMemory()">✕</button>
+      </div>
+      <div class="memory-body">
+        <div class="memory-section">
+          <h3>Common Weaknesses</h3>
+          <ul class="weakness-tags" id="commonWeaknesses">
+            <li class="loading-text">Loading…</li>
+          </ul>
+        </div>
+        <div class="memory-section">
+          <h3>Recent Failures <span class="badge" id="failCount">0</span></h3>
+          <div id="recentFailures" class="failure-list"></div>
+        </div>
+        <button class="btn-danger" onclick="clearMemory()">🗑 Clear Memory</button>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
